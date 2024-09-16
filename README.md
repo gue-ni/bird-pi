@@ -24,5 +24,7 @@ The camera needs a infrared led if filming inside a birdhouse.
 - upload to central server 
 
 
+## Links
 
+- https://lookslikematrix.de/raspberry-pi/2023/10/14/motion-bookworm.html
 
