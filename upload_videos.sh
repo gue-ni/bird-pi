@@ -3,6 +3,13 @@
 set -e
 set -x
 
+
+if pgrep -x "rsync" > /dev/null;
+then
+	echo "already running"
+	exit 1
+fi
+
 local_video_dir=/var/motion/
 
 remote_server=root@www.jakobmaier.at
