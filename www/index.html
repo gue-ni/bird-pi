@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birds of Gartenweg</title>
+  <style>
+    html {
+      color-scheme: light dark;
+    }
+
+    body {
+      width: 35em;
+      margin: 0 auto;
+      padding: 1em;
+      font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+  <script src="//unpkg.com/alpinejs" defer></script>
+
+</head>
+
+<body>
+  <h1>Birds of Gartenweg</h1>
+
+  <script>
+    function imageGallery() {
+      return {
+        images: [],
+        async fetchImages() {
+          try {
+            const url = "/images/"
+            const response = await fetch(url);
+            const data = await response.json();
+
+            // console.log(data[0])
+
+            let modified = data.map(image => {
+              return { ...image, src: `${url}${image.name}` };
+            })
+
+            console.log(modified[0])
+
+            this.images = modified
+
+          } catch (error) {
+            console.error("Error fetching images:", error);
+          }
+        }
+      };
+    }
+  </script>
+
+  <div x-data="imageGallery()" x-init="fetchImages()" class="gallery">
+    <template x-for="image in images" :key="image.name">
+      <div>
+        <img :src="image.src" :alt="image.alt" loading="lazy" />
+      </div>
+    </template>
+  </div>
+
+
+
+</body>
+
+</html>
