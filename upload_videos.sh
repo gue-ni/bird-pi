@@ -9,9 +9,9 @@ then
 	exit 1
 fi
 
-local_dir=/var/motion/images/
+local_dir=/var/motion/
 
-remote_server=root@www.jakobmaier.at
-remote_dir=/var/www/files/birds-of-gartenweg/
+remote_server=pi@home.jakobmaier.at
+remote_dir=/mnt/disk-1/srv/birds-of-gartenweg
 
-rsync --archive --verbose --delete $local_dir $remote_server:$remote_dir
+rsync --omit-dir-times --archive --verbose --delete $local_dir $remote_server:$remote_dir
