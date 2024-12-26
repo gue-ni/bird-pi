@@ -1,0 +1,11 @@
+[Unit]
+Description=Motion Service with libcamerify
+After=network.target
+
+[Service]
+User=root
+Type=simple
+ExecStart=/usr/bin/libcamerify /usr/bin/motion -c /etc/motion/motion.conf
+
+[Install]
+WantedBy=multi-user.target

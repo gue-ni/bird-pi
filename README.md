@@ -2,7 +2,7 @@
 
 ## The Idea
 
-We would like to observe what birds visit our birdhouse. 
+We would like to observe what birds visit our birdhouse.
 
 1. How Many?
 2. What species?
@@ -15,16 +15,30 @@ We would like to observe what birds visit our birdhouse.
 
 ### Hardware
 
-Setup raspberry pi in a special, waterproof housing. The raspberry pi needs power (230 volts). 
+Setup raspberry pi in a special, waterproof housing. The raspberry pi needs power (230 volts).
 The camera needs a infrared led if filming inside a birdhouse.
 
 ### Software:
 
 - start video recording when motion is detected
-- upload to central server 
+- upload to central server
 
 
 ## Links
 
 - https://lookslikematrix.de/raspberry-pi/2023/10/14/motion-bookworm.html
+
+
+
+
+## Docs
+
+If motion is run using `camera.service`, option _daemon off_ needs to be set.
+
+### Files
+
+- /var/log/motion/motion.log
+- /var/motion
+
+
 
