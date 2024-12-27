@@ -11,7 +11,7 @@
     }
 
     body {
-      width: 35em;
+      width: 90%;
       margin: 0 auto;
       padding: 1em;
       font-family: Tahoma, Verdana, Arial, sans-serif;
@@ -44,6 +44,9 @@
   <h1>Birds of Gartenweg</h1>
 
   <script>
+
+    const timer = ms => new Promise(res => setTimeout(res, ms))
+
     function imageGallery() {
       return {
         images: [],
@@ -53,19 +56,36 @@
             const response = await fetch(url);
             const data = await response.json();
 
-            // console.log(data[0])
+            const options = {
+              year: 'numeric',   // e.g., "2023"
+              month: 'long',     // e.g., "Dezember"
+              day: 'numeric',    // e.g., "27"
+              hour: 'numeric',   // e.g., "10"
+              minute: 'numeric', // e.g., "30"
+              second: 'numeric', // e.g., "15"
+              timeZone: 'Europe/Berlin', // Use the Berlin time zone
+              hour12: false      // Use 24-hour format (default in German)
+            };
 
             let modified = data.map(image => {
-              return { ...image, src: `${url}${image.name}` };
+              let date = new Date(image.mtime);
+              let locale_date_string = date.toLocaleDateString('de-DE', options);
+              return { ...image, src: `${url}${image.name}`, locale_date_string };
             })
+
+            modified.sort((a, b) => new Date(b.mtime) - new Date(a.mtime));
+            modified = modified.slice(0, 512)
 
             console.log(modified[0])
 
             this.images = modified
-
           } catch (error) {
             console.error("Error fetching images:", error);
           }
+        },
+        async fetchImagesLoop() {
+          this.fetchImages();
+          setTimeout(this.fetchImagesLoop, 5000)
         }
       };
     }
@@ -74,12 +94,11 @@
   <div x-data="imageGallery()" x-init="fetchImages()" class="gallery">
     <template x-for="image in images" :key="image.name">
       <div>
-        <img :src="image.src" :alt="image.alt" loading="lazy" />
+        <img loading="lazy" :src="image.src" :alt="image.alt" />
+        <small x-text="image.locale_date_string"></small>
       </div>
     </template>
   </div>
-
-
 
 </body>
 
