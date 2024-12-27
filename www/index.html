@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Birds of Gartenweg</title>
+  <title>Vögel im Garten(weg)</title>
   <style>
     html {
       color-scheme: light dark;
@@ -32,36 +32,37 @@
       transition: transform 0.2s ease;
     }
 
+    .gallery video {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease;
+    }
+
     .gallery img:hover {
       transform: scale(1.05);
     }
   </style>
   <script src="//unpkg.com/alpinejs" defer></script>
-
-</head>
-
-<body>
-  <h1>Birds of Gartenweg</h1>
-
   <script>
 
     const timer = ms => new Promise(res => setTimeout(res, ms))
 
-    function imageGallery() {
+    function imageGallery(url) {
       return {
         images: [],
         async fetchImages() {
           try {
-            const url = "/images/"
             const response = await fetch(url);
             const data = await response.json();
 
             const options = {
-              year: 'numeric',   // e.g., "2023"
-              month: 'long',     // e.g., "Dezember"
-              day: 'numeric',    // e.g., "27"
-              hour: 'numeric',   // e.g., "10"
-              minute: 'numeric', // e.g., "30"
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
               second: 'numeric', // e.g., "15"
               timeZone: 'Europe/Berlin', // Use the Berlin time zone
               hour12: false      // Use 24-hour format (default in German)
@@ -91,11 +92,46 @@
     }
   </script>
 
-  <div x-data="imageGallery()" x-init="fetchImages()" class="gallery">
+</head>
+
+<body>
+  <h1>Vögel im Garten(weg)</h1>
+  <p>
+    Zur kontinuierlichen Erhebung des Vogelbestandes (Erfassung der Flugbewegungen) wurde an einem Futterhäußchen im Gartenweg
+    eine Kamera mit Bewegungsauslöser installiert.
+  </p>
+  <p>
+    &copy; 2024 Jakob Maier Dietmar Maier
+  </p>
+
+  <h2>Zeitraffer</h2>
+  <p></p>
+  <div x-data="imageGallery('./videos/')" x-init="fetchImages()" class="gallery">
+    <template x-for="image in images" :key="image.name">
+      <div>
+        <video :src="image.src" controls></video>
+        <div>
+          <small x-text="image.locale_date_string"></small>
+        </div>
+        <div>
+          <a :href="image.src" download>download</a>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <h2>Galerie</h2>
+  <p></p>
+  <div x-data="imageGallery('./images/')" x-init="fetchImages()" class="gallery">
     <template x-for="image in images" :key="image.name">
       <div>
         <img loading="lazy" :src="image.src" :alt="image.alt" />
-        <small x-text="image.locale_date_string"></small>
+        <div>
+          <small x-text="image.locale_date_string"></small>
+        </div>
+        <div>
+          <a :href="image.src" download>download</a>
+        </div>
       </div>
     </template>
   </div>
