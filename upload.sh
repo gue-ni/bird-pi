@@ -14,4 +14,4 @@ local_dir=/var/motion/
 remote_server=root@home.jakobmaier.at
 remote_dir=/mnt/disk-1/srv/birds-of-gartenweg
 
-rsync --omit-dir-times --archive --verbose --delete $local_dir $remote_server:$remote_dir
+rsync --omit-dir-times --archive --verbose $local_dir $remote_server:$remote_dir

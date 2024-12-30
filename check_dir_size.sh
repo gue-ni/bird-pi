@@ -5,7 +5,7 @@ set -e
 DIRECTORY=/var/motion/images
 
 GB=1000000000
-SIZE_LIMIT=$(( 10 * GB))
+SIZE_LIMIT=$(( 10 * GB ))
 
 calculate_directory_size() {
   du -sb "$1" | cut -f1

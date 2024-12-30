@@ -1,12 +1,7 @@
 #!/bin/bash
 
 set -e
-
 IMAGES=/var/motion/images
-ARCHIVE=/var/motion/archive
 
-mkdir -p $ARCHIVE
+find $IMAGES -mtime +7 -type f -print
 
-DAYS=1
-
-find $IMAGES -mtime +$DAYS -type f -exec mv {} $ARCHIVE \;

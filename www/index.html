@@ -51,11 +51,29 @@
         images: [],
         start_timestamp: null,
         end_timestamp: null,
+        hasTimestamps() {
+          return this.start_timestamp && this.end_timestamp;
+        },
+        getFirstTimestamp() {
+          const images = this.getImages();
+          if (images.length > 0) {
+            return images[0].mtime;
+          } else {
+            return "";
+          }
+        },
+        getLastTimestamp() {
+          const images = this.getImages();
+          if (images.length > 0) {
+            return images[images.length-1].mtime;
+          } else {
+            return "";
+          }
+        },
         getImages() {
           if (this.start_timestamp && this.end_timestamp) {
             const start = new Date(this.start_timestamp);
             const end = new Date(this.end_timestamp);
-            console.log("filter");
 
             let filtered = this.images.filter((img) => {
               let date = new Date(img.mtime);
@@ -63,10 +81,9 @@
             });
 
             filtered.reverse();
-            return filtered.slice(512);
+            return filtered.slice(0, 512);
 
           } else {
-            console.log("no filter")
             return this.images.slice(0, 512);
           }
         },
@@ -93,8 +110,6 @@
             })
 
             modified.sort((a, b) => new Date(b.mtime) - new Date(a.mtime));
-
-            console.log(modified[0])
 
             this.images = modified
           } catch (error) {
@@ -139,8 +154,14 @@
       <input id="start_timestamp" type="datetime-local" x-model="start_timestamp" />
     </div>
     <div style="padding: 1em;">
-      <label for="end_timestamp">End:</label>
+      <label for="end_timestamp">Ende:</label>
       <input id="end_timestamp" type="datetime-local" x-model="end_timestamp" />
+    </div>
+    <template x-if="hasTimestamps()">
+      <p><b x-text="getFirstTimestamp()"></b> bis <b x-text="getLastTimestamp()"></b> </p>
+    </template>
+    <div style="padding: 1em;">
+      <b x-text="getImages().length"></b> Bilder
     </div>
     <div class="gallery">
       <template x-for="image in getImages()" :key="image.name">
