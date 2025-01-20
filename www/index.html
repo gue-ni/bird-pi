@@ -43,37 +43,41 @@
     .gallery img:hover {
       transform: scale(1.05);
     }
+
+    [x-cloak] {
+      display: none !important;
+    }
   </style>
   <script src="//unpkg.com/alpinejs" defer></script>
   <script>
-    function imageGallery(url) {
+    function imageGallery(url, itemsPerPage) {
       return {
+        pageIndex: 0,
         images: [],
-        start_timestamp: null,
-        end_timestamp: null,
+        itemsPerPage: itemsPerPage,
+        startTimestamp: null,
+        endTimestamp: null,
         hasTimestamps() {
-          return this.start_timestamp && this.end_timestamp;
+          return this.startTimestamp && this.endTimestamp;
         },
-        getFirstTimestamp() {
-          const images = this.getImages();
-          if (images.length > 0) {
-            return images[0].mtime;
-          } else {
-            return "";
-          }
+        numItems() {
+          return this.images.length;
         },
-        getLastTimestamp() {
-          const images = this.getImages();
-          if (images.length > 0) {
-            return images[images.length-1].mtime;
-          } else {
-            return "";
+        numPages() {
+          return Math.ceil(this.numItems() / this.itemsPerPage);
+        },
+        nextPage() {
+          this.pageIndex++;
+        },
+        previousPage() {
+          if (this.pageIndex > 0) {
+            this.pageIndex--;
           }
         },
         getImages() {
-          if (this.start_timestamp && this.end_timestamp) {
-            const start = new Date(this.start_timestamp);
-            const end = new Date(this.end_timestamp);
+          if (this.hasTimestamps()) {
+            const start = new Date(this.startTimestamp);
+            const end = new Date(this.endTimestamp);
 
             let filtered = this.images.filter((img) => {
               let date = new Date(img.mtime);
@@ -81,16 +85,23 @@
             });
 
             filtered.reverse();
-            return filtered.slice(0, 512);
-
+            return filtered;
           } else {
-            return this.images.slice(0, 512);
+            return this.images;
           }
+        },
+        getFirstPage() {
+          return this.getImages().slice(0, this.itemsPerPage);
+        },
+        getCurrentPage() {
+          const start = this.pageIndex * this.itemsPerPage;
+          const end = (this.pageIndex + 1) * this.itemsPerPage;
+          return this.getImages().slice(start, end);
         },
         async fetchImages() {
           try {
             const response = await fetch(url);
-            const data = await response.json();
+            let data = await response.json();
 
             const options = {
               year: 'numeric',
@@ -103,15 +114,14 @@
               hour12: false
             };
 
-            let modified = data.map(image => {
+            data = data.map(image => {
               let date = new Date(image.mtime);
               let locale_date_string = date.toLocaleDateString('de-DE', options);
               return { ...image, src: `${url}${image.name}`, locale_date_string };
             })
 
-            modified.sort((a, b) => new Date(b.mtime) - new Date(a.mtime));
-
-            this.images = modified
+            data.sort((a, b) => new Date(b.mtime) - new Date(a.mtime));
+            this.images = data;
           } catch (error) {
             console.error("Error fetching images:", error);
           }
@@ -119,23 +129,24 @@
       };
     }
   </script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
   <h1>Vögel im Garten(weg)</h1>
   <p>
-    Zur kontinuierlichen Erhebung des Vogelbestandes (Erfassung der Flugbewegungen) wurde an einem Futterhäußchen im
+    Zur kontinuierlichen Erhebung des Vogelbestandes (Erfassung der Flugbewegungen) wurde an einem Futterhäuschen im
     Gartenweg in Ludesch, Vorarlberg
     eine Kamera mit Bewegungsauslöser installiert.
   </p>
   <p>
     &copy; 2024 Jakob Maier Dietmar Maier
   </p>
+
   <h2>Zeitraffer</h2>
   <p></p>
-  <div x-data="imageGallery('./videos/')" x-init="fetchImages()" class="gallery">
-    <template x-for="image in images" :key="image.name">
+  <div x-data="imageGallery('./videos/', 3)" x-init="fetchImages()" class="gallery" x-cloak>
+    <template x-for="image in getFirstPage()" :key="image.name">
       <div>
         <video :src="image.src" controls></video>
         <div>
@@ -148,23 +159,33 @@
     </template>
   </div>
   <h2>Galerie</h2>
-  <div x-data="imageGallery('./images/')" x-init="fetchImages()">
+  <div x-data="imageGallery('./images/', 25)" x-init="fetchImages()" x-cloak>
     <div style="padding: 1em;">
-      <label for="start_timestamp">Start:</label>
-      <input id="start_timestamp" type="datetime-local" x-model="start_timestamp" />
+      Filter Images
     </div>
     <div style="padding: 1em;">
-      <label for="end_timestamp">Ende:</label>
-      <input id="end_timestamp" type="datetime-local" x-model="end_timestamp" />
+      <label for="startTimestamp">Start:</label>
+      <input id="startTimestamp" type="datetime-local" x-model="startTimestamp" />
     </div>
-    <template x-if="hasTimestamps()">
-      <p><b x-text="getFirstTimestamp()"></b> bis <b x-text="getLastTimestamp()"></b> </p>
-    </template>
     <div style="padding: 1em;">
-      <b x-text="getImages().length"></b> Bilder
+      <label for="endTimestamp">Ende:</label>
+      <input id="endTimestamp" type="datetime-local" x-model="endTimestamp" />
+    </div>
+    <div style="padding: 1em;">
+      <span x-text="getImages().length"></span> total images
+    </div>
+    <div style="padding: 1em;">
+      <button @click="previousPage()">Previous</button>
+      Page
+      <span x-text="pageIndex"></span> /
+      <span x-text="numPages()"></span>
+      <button @click="nextPage()">Next</button>
+    </div>
+    <div style="padding: 1em;">
+      Showing <span x-text="getCurrentPage().length"></span> images
     </div>
     <div class="gallery">
-      <template x-for="image in getImages()" :key="image.name">
+      <template x-for="image in getCurrentPage()" :key="image.name">
         <div>
           <img loading="lazy" :src="image.src" :alt="image.alt" />
           <div>
@@ -177,7 +198,6 @@
       </template>
     </div>
   </div>
-
 </body>
 
 </html>
